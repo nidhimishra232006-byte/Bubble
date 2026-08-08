@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BubbleLens — Bubble Sort Visualizer</title>
+  <meta name="description" content="An interactive, modern Bubble Sort visualizer with live stats, adjustable speed and size, and a step-by-step explanation panel." />
+
+  <!-- Fonts: Space Grotesk (display / data) + Inter (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+  <!-- ============ NAVBAR ============ -->
+  <nav class="navbar">
+    <div class="navbar__inner">
+      <a href="#top" class="brand">
+        <span class="brand__mark">
+          <i class="fa-solid fa-circle-nodes"></i>
+        </span>
+        <span class="brand__text">Bubble<span class="brand__accent">Lens</span></span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#visualizer">Visualizer</a></li>
+        <li><a href="#insights">Insights</a></li>
+        <li><a href="#how-it-works">How it works</a></li>
+      </ul>
+
+      <a href="https://github.com" target="_blank" rel="noopener" class="navbar__cta">
+        <i class="fa-brands fa-github"></i>
+        <span>Source</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero" id="top">
+    <div class="hero__glow hero__glow--one"></div>
+    <div class="hero__glow hero__glow--two"></div>
+
+    <div class="hero__content">
+      <span class="eyebrow"><i class="fa-solid fa-wave-square"></i> Algorithm Visualizer</span>
+      <h1 class="hero__title">
+        Watch <span class="grad-text">Bubble Sort</span><br />
+        bubble every value into place.
+      </h1>
+      <p class="hero__subtitle">
+        Generate a random array, tune the size and speed, then press start —
+        every comparison, swap, and sorted position is animated and explained in real time.
+      </p>
+      <div class="hero__actions">
+        <a href="#visualizer" class="btn btn--primary btn--lg">
+          <i class="fa-solid fa-play"></i> Launch visualizer
+        </a>
+        <a href="#how-it-works" class="btn btn--ghost btn--lg">
+          <i class="fa-solid fa-book-open"></i> How it works
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ VISUALIZER ============ -->
+  <main>
+    <section class="visualizer" id="visualizer">
+      <div class="panel panel--controls glass">
+        <div class="control-group">
+          <label for="arraySize">
+            <i class="fa-solid fa-ruler-horizontal"></i> Array size
+            <span class="control-value" id="arraySizeValue">40</span>
+          </label>
+          <input type="range" id="arraySize" min="10" max="120" value="40" />
+        </div>
+
+        <div class="control-group">
+          <label for="speed">
+            <i class="fa-solid fa-gauge-high"></i> Speed
+            <span class="control-value" id="speedValue">Normal</span>
+          </label>
+          <input type="range" id="speed" min="1" max="5" value="3" />
+        </div>
+
+        <div class="control-buttons">
+          <button class="btn btn--secondary" id="generateBtn">
+            <i class="fa-solid fa-shuffle"></i> Generate Array
+          </button>
+          <button class="btn btn--primary" id="startBtn">
+            <i class="fa-solid fa-play"></i> Start
+          </button>
+          <button class="btn btn--warning" id="pauseBtn" disabled>
+            <i class="fa-solid fa-pause"></i> Pause
+          </button>
+          <button class="btn btn--success" id="resumeBtn" disabled>
+            <i class="fa-solid fa-forward"></i> Resume
+          </button>
+          <button class="btn btn--ghost" id="resetBtn">
+            <i class="fa-solid fa-rotate-left"></i> Reset
+          </button>
+        </div>
+      </div>
+
+      <div class="panel panel--stage glass">
+        <div class="stage-header">
+          <div class="legend">
+            <span class="legend__item"><i class="legend__dot legend__dot--default"></i> Unsorted</span>
+            <span class="legend__item"><i class="legend__dot legend__dot--compare"></i> Comparing</span>
+            <span class="legend__item"><i class="legend__dot legend__dot--swap"></i> Swapping</span>
+            <span class="legend__item"><i class="legend__dot legend__dot--sorted"></i> Sorted</span>
+          </div>
+          <span class="status-pill" id="statusPill">
+            <i class="fa-solid fa-circle status-pill__dot"></i> Idle
+          </span>
+        </div>
+
+        <div class="bars-container" id="barsContainer">
+          <!-- Bars injected by JS -->
+        </div>
+      </div>
+
+      <!-- ============ STATS ============ -->
+      <div class="stats-grid" id="insights">
+        <div class="stat-card glass">
+          <i class="fa-solid fa-layer-group stat-card__icon"></i>
+          <span class="stat-card__value" id="statPass">0</span>
+          <span class="stat-card__label">Current Pass</span>
+        </div>
+        <div class="stat-card glass">
+          <i class="fa-solid fa-code-compare stat-card__icon"></i>
+          <span class="stat-card__value" id="statComparisons">0</span>
+          <span class="stat-card__label">Comparisons</span>
+        </div>
+        <div class="stat-card glass">
+          <i class="fa-solid fa-arrow-right-arrow-left stat-card__icon"></i>
+          <span class="stat-card__value" id="statSwaps">0</span>
+          <span class="stat-card__label">Swaps</span>
+        </div>
+        <div class="stat-card glass">
+          <i class="fa-solid fa-stopwatch stat-card__icon"></i>
+          <span class="stat-card__value" id="statTime">0.00s</span>
+          <span class="stat-card__label">Execution Time</span>
+        </div>
+        <div class="stat-card glass stat-card--wide">
+          <i class="fa-solid fa-chart-line stat-card__icon"></i>
+          <div class="complexity-row">
+            <div><span class="complexity-label">Best</span><span class="complexity-value">O(n)</span></div>
+            <div><span class="complexity-label">Average</span><span class="complexity-value">O(n\u00b2)</span></div>
+            <div><span class="complexity-label">Worst</span><span class="complexity-value">O(n\u00b2)</span></div>
+            <div><span class="complexity-label">Space</span><span class="complexity-value">O(1)</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ EXPLANATION PANEL ============ -->
+      <div class="panel panel--explain glass" id="how-it-works">
+        <div class="explain-header">
+          <h2><i class="fa-solid fa-lightbulb"></i> Step-by-step explanation</h2>
+        </div>
+        <p class="explain-current" id="explainCurrent">
+          Press <strong>Generate Array</strong>, then <strong>Start</strong> to begin sorting. Each step will be explained here as it happens.
+        </p>
+        <div class="explain-log" id="explainLog">
+          <!-- Log entries injected by JS -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <span>&copy; 2026 BubbleLens. Built to teach, not to copy.</span>
+      <span class="footer__tag"><i class="fa-solid fa-code"></i> Flask + Vanilla JS</span>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
